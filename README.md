@@ -165,3 +165,14 @@ desktop-agent/
 | **Information Synthesis** | Linkup for real-time web knowledge, result grounding |
 | **Privacy & Security** | PII redaction, local-first processing, no data leaves machine |
 | **Usability** | Web UI with chat, file attachments, AI View, generated file downloads |
+
+---
+
+## Future Scope
+
+- **Streaming responses** — Real-time token-by-token output instead of waiting for the full response, significantly improving perceived speed
+- **Conversation history** — Sidebar showing past sessions with the ability to resume or reference previous conversations
+- **Multi-agent architecture** — Separate planner, researcher, and critic agents that collaborate on complex tasks
+- **OAuth integrations** — Direct Google Calendar, Outlook, and Gmail connections instead of local file adapters
+- **Voice input** — Speak commands instead of typing, with local speech-to-text processing
+- **Plugin system** — Allow users to add custom tools without modifying core code
