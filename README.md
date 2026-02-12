@@ -2,7 +2,7 @@
 
 A privacy-first desktop assistant that uses a local LLM (Ollama), Linkup's agentic search API for real-time web knowledge, and 12 tools across 5 domains — all orchestrated by an autonomous Planner → Executor → Evaluator loop.
 
-> **Open `docs/architecture_diagram.html` in a browser** for an interactive animated system diagram.
+> 🔗 **[Interactive Architecture Diagram](https://gitreboot.github.io/HackwithDC-Team-6/architecture_diagram.html)** — animated, clickable system overview (or open `docs/architecture_diagram.html` locally)
 
 ---
 
@@ -24,20 +24,21 @@ A privacy-first desktop assistant that uses a local LLM (Ollama), Linkup's agent
 
 ### Prerequisites
 
-- Python 3.10+
-- [Ollama](https://ollama.com) installed and running
-- [Linkup API key](https://linkup.so) (free tier available)
+- **Python 3.10+**
+- **[Ollama](https://ollama.com)** — install and make sure the Ollama service is running (`ollama serve`)
+- **[Linkup API key](https://linkup.so)** — sign up free at linkup.so → Dashboard → API Keys
 
 ### Setup
 
 ```bash
-# 1. Enter the project
-cd desktop-agent
+# 1. Clone the repo
+git clone https://github.com/GitReboot/HackwithDC-Team-6.git
+cd HackwithDC-Team-6
 
-# 2. Install dependencies
+# 2. Install Python dependencies
 pip install -r requirements.txt
 
-# 3. Pull an Ollama model
+# 3. Pull an Ollama model (make sure Ollama is running first)
 ollama pull llama3.1:8b
 
 # 4. Set your Linkup API key
@@ -53,6 +54,8 @@ python server.py
 
 # 6. Open http://localhost:5000 in your browser
 ```
+
+Demo emails and calendar events auto-seed on first launch — no extra setup needed.
 
 ### Optional: Better PII Detection
 
@@ -96,7 +99,7 @@ The agent follows a **Planner → Executor → Evaluator** loop:
 3. **Evaluator** checks success and retries if needed
 4. **Synthesis** combines results, strips false claims, restores PII
 
-See [docs/architecture.md](docs/architecture.md) for the full design and [docs/architecture_diagram.html](docs/architecture_diagram.html) for the interactive diagram.
+See [docs/architecture.md](docs/architecture.md) for the full design, or explore the [interactive diagram](https://gitreboot.github.io/HackwithDC-Team-6/architecture_diagram.html).
 
 ---
 
@@ -111,6 +114,7 @@ desktop-agent/
 │   ├── __init__.py            # Config loader
 │   └── defaults.yaml          # Default settings
 ├── agent/
+│   ├── __init__.py
 │   ├── planner.py             # Goal → step decomposition
 │   ├── executor.py            # Tool calling + scheduling gate
 │   ├── evaluator.py           # Success checking + retry
@@ -125,6 +129,7 @@ desktop-agent/
 │   ├── memory_tools.py        # Store/recall facts
 │   └── privacy.py             # PII redaction engine
 ├── memory/
+│   ├── __init__.py
 │   ├── sqlite_store.py        # Conversation + task history
 │   └── faiss_retriever.py     # Semantic similarity search
 ├── frontend/
@@ -143,7 +148,7 @@ desktop-agent/
 | Document | Description |
 |----------|-------------|
 | [architecture.md](docs/architecture.md) | Full system design — data flow, components, guardrails |
-| [architecture_diagram.html](docs/architecture_diagram.html) | Interactive animated architecture diagram (open in browser) |
+| [architecture_diagram.html](https://gitreboot.github.io/HackwithDC-Team-6/architecture_diagram.html) | Interactive animated architecture diagram |
 | [linkup_integration.md](docs/linkup_integration.md) | How Linkup enhances agent capabilities |
 | [demo_scenarios.md](docs/demo_scenarios.md) | Step-by-step demo walkthrough |
 
