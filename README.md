@@ -199,15 +199,10 @@ The web UI also shows an interactive setup screen on launch that runs through th
 
 <p align="center">
   <a href="https://ollama.com">
-    <img src="https://ollama.com/public/ollama.png" alt="Ollama" height="50">
+    <img src="https://img.shields.io/badge/Ollama-Local_LLM_Inference-000000?style=for-the-badge&logo=llama&logoColor=white" alt="Ollama">
   </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;
   <a href="https://linkup.so">
-    <img src="https://avatars.githubusercontent.com/u/176527227" alt="Linkup" height="50">
+    <img src="https://img.shields.io/badge/Linkup-Agentic_Web_Search-0066FF?style=for-the-badge&logo=searchengin&logoColor=white" alt="Linkup">
   </a>
-</p>
-<p align="center">
-  <a href="https://ollama.com"><strong>Ollama</strong></a> — Local LLM inference
-  &nbsp;&nbsp;·&nbsp;&nbsp;
-  <a href="https://linkup.so"><strong>Linkup</strong></a> — Agentic web search API
 </p>
