@@ -53,6 +53,7 @@ export LINKUP_API_KEY="your-key-here"
 python server.py
 
 # 6. Open http://localhost:5000 in your browser
+#    The setup screen will check all prerequisites automatically
 ```
 
 Demo emails and calendar events auto-seed on first launch — no extra setup needed.
@@ -168,6 +169,21 @@ desktop-agent/
 
 ---
 
+## Health Check
+
+Visit **http://localhost:5000/api/health** after starting the server to verify all prerequisites:
+
+- Python version
+- Ollama status and model availability
+- Linkup API key
+- Required packages
+- Privacy engine (Presidio NLP or regex fallback)
+- Demo data
+
+The web UI also shows an interactive setup screen on launch that runs through these checks automatically.
+
+---
+
 ## Future Scope
 
 - **Streaming responses** — Real-time token-by-token output instead of waiting for the full response, significantly improving perceived speed
@@ -176,3 +192,22 @@ desktop-agent/
 - **OAuth integrations** — Direct Google Calendar, Outlook, and Gmail connections instead of local file adapters
 - **Voice input** — Speak commands instead of typing, with local speech-to-text processing
 - **Plugin system** — Allow users to add custom tools without modifying core code
+
+---
+
+## Powered By
+
+<p align="center">
+  <a href="https://ollama.com">
+    <img src="https://ollama.com/public/ollama.png" alt="Ollama" height="50">
+  </a>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="https://linkup.so">
+    <img src="https://avatars.githubusercontent.com/u/176527227" alt="Linkup" height="50">
+  </a>
+</p>
+<p align="center">
+  <a href="https://ollama.com"><strong>Ollama</strong></a> — Local LLM inference
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="https://linkup.so"><strong>Linkup</strong></a> — Agentic web search API
+</p>

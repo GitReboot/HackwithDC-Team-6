@@ -232,7 +232,114 @@ def session_info():
     })
 
 
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    """Comprehensive health check — verifies all prerequisites."""
+    checks = {}
+    all_ok = True
+
+    # 1. Python version
+    import platform
+    checks["python"] = {
+        "status": "ok",
+        "version": platform.python_version(),
+        "message": f"Python {platform.python_version()}"
+    }
+
+    # 2. Ollama reachable
+    try:
+        import requests as req
+        ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+        resp = req.get(f"{ollama_host}/api/tags", timeout=3)
+        if resp.ok:
+            models = [m["name"] for m in resp.json().get("models", [])]
+            cfg = load_config()
+            target_model = cfg["agent"]["model"]
+            has_model = any(target_model in m for m in models)
+            checks["ollama"] = {
+                "status": "ok" if has_model else "warning",
+                "message": f"Running, {'model found: ' + target_model if has_model else 'model ' + target_model + ' not found — run: ollama pull ' + target_model}",
+                "models": models[:10],
+                "target_model": target_model,
+            }
+            if not has_model:
+                all_ok = False
+        else:
+            checks["ollama"] = {"status": "error", "message": "Ollama responded but returned an error"}
+            all_ok = False
+    except Exception as e:
+        checks["ollama"] = {
+            "status": "error",
+            "message": "Cannot reach Ollama. Make sure it's running: ollama serve"
+        }
+        all_ok = False
+
+    # 3. Linkup API key
+    linkup_key = os.environ.get("LINKUP_API_KEY", "")
+    if linkup_key and len(linkup_key) > 5:
+        checks["linkup_api_key"] = {
+            "status": "ok",
+            "message": f"Set (ends with ...{linkup_key[-4:]})"
+        }
+    else:
+        checks["linkup_api_key"] = {
+            "status": "error",
+            "message": "Not set. Run: set LINKUP_API_KEY=your-key (get one free at linkup.so)"
+        }
+        all_ok = False
+
+    # 4. Key Python packages
+    packages = {
+        "flask": "flask",
+        "ollama_sdk": "ollama",
+        "faiss": "faiss",
+        "sentence_transformers": "sentence_transformers",
+        "fitz_pymupdf": "fitz",
+    }
+    pkg_results = {}
+    for name, module in packages.items():
+        try:
+            __import__(module)
+            pkg_results[name] = "ok"
+        except ImportError:
+            pkg_results[name] = "missing"
+            if name in ("flask", "ollama_sdk"):
+                all_ok = False
+
+    checks["packages"] = {
+        "status": "ok" if all(v == "ok" for v in pkg_results.values()) else "warning",
+        "message": f"{sum(v == 'ok' for v in pkg_results.values())}/{len(pkg_results)} installed",
+        "details": pkg_results,
+    }
+
+    # 5. Privacy engine
+    try:
+        from tools.privacy import _load_presidio
+        _, _, nlp_ok = _load_presidio()
+        checks["privacy_engine"] = {
+            "status": "ok",
+            "message": "Presidio NLP" if nlp_ok else "Regex fallback (install presidio for better detection)"
+        }
+    except Exception:
+        checks["privacy_engine"] = {"status": "ok", "message": "Regex fallback"}
+
+    # 6. Demo data
+    demo_emails = Path("data/emails").exists()
+    demo_cal = Path("data/calendars").exists()
+    checks["demo_data"] = {
+        "status": "ok" if (demo_emails or demo_cal) else "warning",
+        "message": f"Emails: {'ready' if demo_emails else 'will seed on first use'}, Calendar: {'ready' if demo_cal else 'will seed on first use'}"
+    }
+
+    return jsonify({
+        "healthy": all_ok,
+        "checks": checks,
+        "message": "All systems operational" if all_ok else "Some checks failed — see details above"
+    })
+
+
 if __name__ == "__main__":
     Path("frontend").mkdir(exist_ok=True)
     print("\n🤖 Desktop Agent API running at http://localhost:5000\n")
+    print("   Health check: http://localhost:5000/api/health\n")
     app.run(host="0.0.0.0", port=5000, debug=False)

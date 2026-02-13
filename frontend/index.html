@@ -162,11 +162,59 @@ html,body{height:100%;background:var(--bg-void);color:var(--text-primary);font-f
 
 @media(max-width:1024px){.app{grid-template-columns:1fr}.sidebar{display:none}.right-panel{display:none}}
 
+/* Setup Screen */
+.setup-overlay{position:fixed;inset:0;z-index:1000;background:var(--bg-void);display:flex;align-items:center;justify-content:center;transition:opacity 0.5s ease}
+.setup-overlay.hidden{opacity:0;pointer-events:none}
+.setup-box{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:36px 40px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.setup-logo{text-align:center;margin-bottom:20px}
+.setup-logo .icon{font-size:36px;margin-bottom:8px;display:block}
+.setup-logo h2{font-family:var(--font-mono);font-size:20px;font-weight:600}
+.setup-logo h2 span{color:var(--accent)}
+.setup-logo p{color:var(--text-muted);font-size:13px;margin-top:4px}
+.setup-checks{display:flex;flex-direction:column;gap:8px;margin:20px 0}
+.setup-check{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);font-size:13px;transition:all 0.3s ease}
+.setup-check.checking{color:var(--text-muted);border-color:var(--border-subtle)}
+.setup-check.ok{color:var(--accent);border-color:rgba(62,207,142,0.3);background:rgba(62,207,142,0.05)}
+.setup-check.warn{color:var(--warning);border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.05)}
+.setup-check.fail{color:var(--error);border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.05)}
+.setup-check .check-icon{width:22px;text-align:center;font-size:15px;flex-shrink:0}
+.setup-check .check-label{font-family:var(--font-mono);font-size:12px;font-weight:500;min-width:100px}
+.setup-check .check-msg{color:var(--text-dim);font-size:12px;flex:1}
+.setup-spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--text-muted);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.setup-footer{text-align:center;margin-top:20px}
+.setup-btn{background:var(--accent);color:var(--bg-void);border:none;border-radius:var(--radius-sm);padding:10px 28px;font-family:var(--font-mono);font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition)}
+.setup-btn:hover{background:#4ddb9e;box-shadow:0 0 20px var(--accent-glow-strong)}
+.setup-btn:disabled{opacity:0.3;cursor:not-allowed}
+.setup-status{font-family:var(--font-mono);font-size:12px;margin-bottom:12px}
+
 .app::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");background-size:256px;pointer-events:none;z-index:9999}
 </style>
 </head>
 <body>
-<div class="app" id="app">
+<div class="setup-overlay" id="setupOverlay">
+  <div class="setup-box">
+    <div class="setup-logo">
+      <span class="icon">🤖</span>
+      <h2>Desktop<span>Agent</span></h2>
+      <p>Checking system prerequisites...</p>
+    </div>
+    <div class="setup-checks" id="setupChecks">
+      <div class="setup-check checking" id="chk-python"><span class="check-icon"><span class="setup-spinner"></span></span><span class="check-label">Python</span><span class="check-msg">Checking...</span></div>
+      <div class="setup-check checking" id="chk-ollama"><span class="check-icon"><span class="setup-spinner"></span></span><span class="check-label">Ollama</span><span class="check-msg">Checking...</span></div>
+      <div class="setup-check checking" id="chk-linkup"><span class="check-icon"><span class="setup-spinner"></span></span><span class="check-label">Linkup Key</span><span class="check-msg">Checking...</span></div>
+      <div class="setup-check checking" id="chk-packages"><span class="check-icon"><span class="setup-spinner"></span></span><span class="check-label">Packages</span><span class="check-msg">Checking...</span></div>
+      <div class="setup-check checking" id="chk-privacy"><span class="check-icon"><span class="setup-spinner"></span></span><span class="check-label">Privacy</span><span class="check-msg">Checking...</span></div>
+      <div class="setup-check checking" id="chk-demo"><span class="check-icon"><span class="setup-spinner"></span></span><span class="check-label">Demo Data</span><span class="check-msg">Checking...</span></div>
+    </div>
+    <div class="setup-footer">
+      <div class="setup-status" id="setupStatus"></div>
+      <button class="setup-btn" id="setupBtn" disabled onclick="dismissSetup()">Loading...</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app" style="display:none">
   <div class="drag-overlay" id="dragOverlay"><div class="drag-box"><div class="drag-icon">📎</div>Drop files here to attach</div></div>
 
   <header class="topbar">
@@ -298,24 +346,91 @@ function toggleSidebar() {
   btn.classList.toggle('collapsed');
 }
 
-// INIT
+// INIT — runs health check, populates setup screen, then shows app
 async function init() {
+  const statusIcons = { ok: '✅', warning: '⚠️', error: '❌' };
+
+  function setCheck(id, status, msg) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'setup-check ' + (status === 'ok' ? 'ok' : status === 'warning' ? 'warn' : 'fail');
+    el.querySelector('.check-icon').textContent = statusIcons[status] || '❌';
+    el.querySelector('.check-msg').textContent = msg;
+  }
+
+  function setAllFailed(msg) {
+    ['chk-python','chk-ollama','chk-linkup','chk-packages','chk-privacy','chk-demo'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.classList.contains('checking')) setCheck(id, 'error', msg);
+    });
+  }
+
   try {
-    const res = await fetch(API + '/api/session');
-    if (!res.ok) throw new Error();
+    const res = await fetch(API + '/api/health');
+    if (!res.ok) throw new Error('Health endpoint returned ' + res.status);
     const data = await res.json();
-    document.getElementById('statusDot').classList.remove('offline');
-    document.getElementById('statusText').textContent = 'online';
-    sendBtn.disabled = false;
-    privacyEnabled = data.privacy_enabled !== false;
-    updatePrivacyUI();
-    fetchPrivacyEngine();
+    const c = data.checks;
+
+    // Populate each check
+    if (c.python) setCheck('chk-python', c.python.status, c.python.message);
+    if (c.ollama) setCheck('chk-ollama', c.ollama.status, c.ollama.message);
+    if (c.linkup_api_key) setCheck('chk-linkup', c.linkup_api_key.status, c.linkup_api_key.message);
+    if (c.packages) setCheck('chk-packages', c.packages.status, c.packages.message);
+    if (c.privacy_engine) setCheck('chk-privacy', c.privacy_engine.status, c.privacy_engine.message);
+    if (c.demo_data) setCheck('chk-demo', c.demo_data.status, c.demo_data.message);
+
+    const btn = document.getElementById('setupBtn');
+    const statusEl = document.getElementById('setupStatus');
+
+    if (data.healthy) {
+      statusEl.style.color = 'var(--accent)';
+      statusEl.textContent = '✅ All systems operational';
+      btn.textContent = 'Launch Agent';
+      btn.disabled = false;
+    } else {
+      statusEl.style.color = 'var(--warning)';
+      statusEl.textContent = '⚠️ Some checks need attention — agent may still work';
+      btn.textContent = 'Launch Anyway';
+      btn.disabled = false;
+    }
+
+    // Also init the main app in background
+    try {
+      const sessionRes = await fetch(API + '/api/session');
+      if (sessionRes.ok) {
+        const sData = await sessionRes.json();
+        document.getElementById('statusDot').classList.remove('offline');
+        document.getElementById('statusText').textContent = 'online';
+        sendBtn.disabled = false;
+        privacyEnabled = sData.privacy_enabled !== false;
+        updatePrivacyUI();
+        fetchPrivacyEngine();
+      }
+    } catch(e) {}
+
   } catch(e) {
+    setAllFailed('Server unreachable — run: python server.py');
+    const btn = document.getElementById('setupBtn');
+    const statusEl = document.getElementById('setupStatus');
+    statusEl.style.color = 'var(--error)';
+    statusEl.textContent = '❌ Cannot reach server';
+    btn.textContent = 'Retry';
+    btn.disabled = false;
+    btn.onclick = () => { location.reload(); };
+
     document.getElementById('statusDot').classList.add('offline');
-    document.getElementById('statusText').textContent = 'offline — start server.py';
+    document.getElementById('statusText').textContent = 'offline';
     sendBtn.disabled = true;
   }
 }
+
+function dismissSetup() {
+  const overlay = document.getElementById('setupOverlay');
+  overlay.classList.add('hidden');
+  document.getElementById('app').style.display = '';
+  setTimeout(() => overlay.remove(), 500);
+}
+
 async function fetchPrivacyEngine() {
   try { const r = await fetch(API+'/api/privacy'); const d = await r.json(); document.getElementById('privacyEngine').textContent = d.engine==='presidio'?'(NLP)':'(regex)'; } catch(e){}
 }
