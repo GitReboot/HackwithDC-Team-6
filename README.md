@@ -20,6 +20,24 @@ A privacy-first desktop assistant that uses a local LLM (Ollama), Linkup's agent
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/images/setup_loading.png" alt="Setup Screen - Loading" width="280">
+  &nbsp;&nbsp;
+  <img src="docs/images/setup_complete.png" alt="Setup Screen - All Systems Go" width="280">
+</p>
+<p align="center"><em>Setup screen checks all prerequisites on launch</em></p>
+
+<br>
+
+<p align="center">
+  <img src="docs/images/chat_demo.png" alt="Chat UI - Multi-step Workflow" width="800">
+</p>
+<p align="center"><em>Multi-step workflow: email draft + scheduling gate + calendar event creation with privacy redaction (AI View panel)</em></p>
+
+---
+
 ## Quick Start
 
 ### Prerequisites
@@ -197,12 +215,10 @@ The web UI also shows an interactive setup screen on launch that runs through th
 
 ## Powered By
 
-<p align="center">
-  <a href="https://ollama.com">
-    <img src="https://img.shields.io/badge/Ollama-Local_LLM_Inference-000000?style=for-the-badge&logo=llama&logoColor=white" alt="Ollama">
-  </a>
-  &nbsp;&nbsp;
-  <a href="https://linkup.so">
-    <img src="https://img.shields.io/badge/Linkup-Agentic_Web_Search-0066FF?style=for-the-badge&logo=searchengin&logoColor=white" alt="Linkup">
-  </a>
-</p>
+<div align="center">
+
+[![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-000000?style=flat-square)](https://ollama.com) &nbsp;&nbsp; [![Linkup](https://img.shields.io/badge/Linkup-Web_Search-0066FF?style=flat-square)](https://linkup.so)
+
+**[Ollama](https://ollama.com)** powers local LLM inference &nbsp;·&nbsp; **[Linkup](https://linkup.so)** provides agentic web search
+
+</div>
