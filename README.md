@@ -2,7 +2,7 @@
 
 A privacy-first desktop assistant that uses a local LLM (Ollama), Linkup's agentic search API for real-time web knowledge, and 12 tools across 5 domains — all orchestrated by an autonomous Planner → Executor → Evaluator loop.
 
-> 🔗 **[Interactive Architecture Diagram](https://gitreboot.github.io/HackwithDC-Team-6/architecture_diagram.html)** — animated, clickable system overview (or open `docs/architecture_diagram.html` locally)
+> 🔗 **[Interactive Architecture Diagram](https://gitreboot.github.io/HackwithDC-Team-6)** — animated, clickable system overview (or open `docs/architecture_diagram.html` locally)
 
 ---
 
