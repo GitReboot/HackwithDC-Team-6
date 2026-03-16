@@ -22,6 +22,7 @@ from memory.sqlite_store import SQLiteStore
 from memory.faiss_retriever import FAISSRetriever
 from tools import ToolRegistry
 from tools.linkup_client import LinkupSearchTool
+from tools.tavily_client import TavilySearchTool
 from tools.email_adapter import ListEmailsTool, ReadEmailTool, DraftReplyTool
 from tools.document_adapter import ReadDocumentTool, ListDocumentsTool, SummarizeDocumentTool
 from tools.calendar_adapter import ListEventsTool, CreateEventTool, CreateReminderTool
@@ -51,7 +52,10 @@ def get_agent() -> AgentLoop:
         faiss = FAISSRetriever(cfg["memory"])
         registry = ToolRegistry()
 
-        registry.register(LinkupSearchTool(cfg.get("linkup", {})))
+        if cfg.get("search_provider", "linkup") == "tavily":
+            registry.register(TavilySearchTool(cfg.get("tavily", {})))
+        else:
+            registry.register(LinkupSearchTool(cfg.get("linkup", {})))
         email_cfg = cfg.get("email", {})
         registry.register(ListEmailsTool(email_cfg))
         registry.register(ReadEmailTool(email_cfg))

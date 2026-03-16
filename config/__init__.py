@@ -21,6 +21,7 @@ def load_config(override_path: str | None = None) -> dict:
     # Environment variable overrides
     env_map = {
         "LINKUP_API_KEY": ("linkup", "api_key"),
+        "TAVILY_API_KEY": ("tavily", "api_key"),
         "OLLAMA_HOST": ("agent", "ollama_host"),
         "AGENT_EMAIL_PASSWORD": ("email", "password"),
         "AGENT_MODEL": ("agent", "model"),

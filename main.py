@@ -22,6 +22,7 @@ from memory.sqlite_store import SQLiteStore
 from memory.faiss_retriever import FAISSRetriever
 from tools import ToolRegistry
 from tools.linkup_client import LinkupSearchTool
+from tools.tavily_client import TavilySearchTool
 from tools.email_adapter import ListEmailsTool, ReadEmailTool, DraftReplyTool
 from tools.document_adapter import ReadDocumentTool, ListDocumentsTool, SummarizeDocumentTool
 from tools.calendar_adapter import ListEventsTool, CreateEventTool, CreateReminderTool
@@ -58,8 +59,11 @@ def bootstrap(cfg: dict) -> AgentLoop:
     # Tool registry
     registry = ToolRegistry()
 
-    # Linkup (web research)
-    registry.register(LinkupSearchTool(cfg.get("linkup", {})))
+    # Web research (Linkup or Tavily, based on search_provider config)
+    if cfg.get("search_provider", "linkup") == "tavily":
+        registry.register(TavilySearchTool(cfg.get("tavily", {})))
+    else:
+        registry.register(LinkupSearchTool(cfg.get("linkup", {})))
 
     # Email tools
     email_cfg = cfg.get("email", {})

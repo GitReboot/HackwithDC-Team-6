@@ -4,11 +4,18 @@ agent:
   max_plan_steps: 10             # Max steps in a plan
   conversation_buffer_size: 20   # Short-term memory turns
 
+search_provider: "linkup"         # "linkup" or "tavily"
+
 linkup:
   base_url: "https://api.linkup.so/v1/search"
   default_depth: "deep"          # "standard" or "deep"
   default_output_type: "searchResults"  # "searchResults", "sourcedAnswer", "structured"
   rate_limit_per_second: 10
+
+tavily:
+  search_depth: "advanced"         # "basic" or "advanced"
+  max_results: 5
+  topic: "general"                 # "general", "news", or "finance"
 
 memory:
   sqlite_path: "data/agent.db"
